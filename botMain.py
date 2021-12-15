@@ -13,18 +13,18 @@ config.read('password.ini')
 botPass = config.get('s1', 'pass')
 devPass = config.get('s1', 'devPass')
 
-numberOfTopPostsToCheck = 100
+numberOfTopPostsToCheck = 50
 phrasesToRecognize = {"absolute", "absolutes", "absolutely", "absolution"}
-subredditToSearch = 'relevantrealname'
-#'StarWars'
-#'AbsoluteUnits'
-#
-#'PrequelMemes'
+subredditToSearch = 'startrek'
+# 'StarWars'
+# 'AbsoluteUnits'
+# 'relevantrealname'
+# 'PrequelMemes'
 
 reddit = praw.Reddit(
     client_id="tRclfC6esR4Mz3-5B4Axjg",
-    client_secret= devPass,
-    password= botPass,
+    client_secret=devPass,
+    password=botPass,
     user_agent="testscript by u/SithLord_Bot",
     username="SithLord_Bot",
 )
@@ -45,30 +45,42 @@ else:
         posts_replied_to = list(filter(None, posts_replied_to))
 
 
+numberPost = 0
+
+# searchResultssubreddit.search()
 
 for submission in subreddit.hot(limit=numberOfTopPostsToCheck):
-    #print(submission.title)
+    # print(submission.title)
     # Make sure you didn't already reply to this post
-    if submission.id not in posts_replied_to:
-            #Search through comments for keywords
-            
-            for currentComment in submission.comments:
-                # Not case sensitive
-                
-                for keyword in phrasesToRecognize:
-                    try:
-                        if re.search(keyword, currentComment.body, re.IGNORECASE):
-                            if submission.id not in posts_replied_to:
-                                # Reply
-                                if not currentComment.locked:
-                                    currentComment.reply("Only a Sith deals in absolutes.")
-                                    print("Bot replying to : ", submission.title)
 
-                                    # Store id in list
-                                    posts_replied_to.append(submission.id)
-                                    break
-                    except Exception:
-                        print("Wack")
+    numberPost = numberPost + 1
+    print("Checked ", numberPost)
+    print("Post Name: ", submission.title)
+
+    if submission.id not in posts_replied_to:
+        # Search through comments for keywords
+
+        for currentComment in submission.comments:
+            # Not case sensitive
+
+            for keyword in phrasesToRecognize:
+                # try:
+                if re.search(keyword, currentComment.body, re.IGNORECASE):
+                    if submission.id not in posts_replied_to:
+                        # Reply
+
+                        currentComment.reply(
+                            "Only a Sith deals in absolutes.")
+
+                        print(numberPost, ": Bot replying to : ",
+                              submission.title)
+
+                        # Store id in list
+                        posts_replied_to.append(submission.id)
+                        break
+
+           # except Exception:
+                #    print(numberPost, ": Error")
 
 # Write updated list to file
 with open("posts_replied_to.txt", "w") as f:
