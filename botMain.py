@@ -13,12 +13,11 @@ config.read('password.ini')
 botPass = config.get('s1', 'pass')
 devPass = config.get('s1', 'devPass')
 
-numberOfTopPostsToCheck = 50
+numberOfTopPostsToCheck = 200
 phrasesToRecognize = {"absolute", "absolutes", "absolutely", "absolution"}
-subredditToSearch = 'startrek'
+subredditToSearch = 'technews'
 # 'StarWars'
 # 'AbsoluteUnits'
-# 'relevantrealname'
 # 'PrequelMemes'
 
 reddit = praw.Reddit(
@@ -46,7 +45,8 @@ else:
 
 
 numberPost = 0
-
+absoluteReplies = 0
+fatherReplies = 0
 # searchResultssubreddit.search()
 
 for submission in subreddit.hot(limit=numberOfTopPostsToCheck):
@@ -55,7 +55,7 @@ for submission in subreddit.hot(limit=numberOfTopPostsToCheck):
 
     numberPost = numberPost + 1
     print("Checked ", numberPost)
-    print("Post Name: ", submission.title)
+    #print("Post Name: ", submission.title)
 
     if submission.id not in posts_replied_to:
         # Search through comments for keywords
@@ -64,25 +64,49 @@ for submission in subreddit.hot(limit=numberOfTopPostsToCheck):
             # Not case sensitive
 
             for keyword in phrasesToRecognize:
-                # try:
-                if re.search(keyword, currentComment.body, re.IGNORECASE):
+                try:
                     if submission.id not in posts_replied_to:
-                        # Reply
 
-                        currentComment.reply(
-                            "Only a Sith deals in absolutes.")
+                        if re.search(keyword, currentComment.body, re.IGNORECASE):
 
-                        print(numberPost, ": Bot replying to : ",
-                              submission.title)
+                            # Reply
 
-                        # Store id in list
-                        posts_replied_to.append(submission.id)
+                            currentComment.reply(
+                                "Only a Sith deals in absolutes.")
+
+                            print(numberPost, ": Bot replying to : ",
+                                  submission.title)
+
+                            # Store id in list
+                            posts_replied_to.append(submission.id)
+                            absoluteReplies = absoluteReplies + 1
+                            break
+
+                    else:
+                       # print("I already commented on this post.")
                         break
 
-           # except Exception:
-                #    print(numberPost, ": Error")
+                except Exception as e:
+                    print(e)
+
+            try:
+                if re.search("father", currentComment.body, re.IGNORECASE):
+                    if submission.id not in posts_replied_to:
+
+                        currentComment.reply(
+                            currentComment.author, ", I am your father.")
+
+                        posts_replied_to.append(submission.id)
+                        fatherReplies = fatherReplies + 1
+                        break
+
+            except Exception as e:
+                print(e)
 
 # Write updated list to file
 with open("posts_replied_to.txt", "w") as f:
     for post_id in posts_replied_to:
         f.write(post_id + "\n")
+
+print("Absolute Sith Comments: ", absoluteReplies)
+print("Father Comments: ", fatherReplies)
