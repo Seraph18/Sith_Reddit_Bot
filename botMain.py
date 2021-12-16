@@ -15,7 +15,7 @@ devPass = config.get('s1', 'devPass')
 
 numberOfTopPostsToCheck = 200
 phrasesToRecognize = {"absolute", "absolutes", "absolutely", "absolution"}
-subredditToSearch = 'technews'
+subredditToSearch = 'pics'
 # 'StarWars'
 # 'AbsoluteUnits'
 # 'PrequelMemes'
@@ -92,9 +92,9 @@ for submission in subreddit.hot(limit=numberOfTopPostsToCheck):
             try:
                 if re.search("father", currentComment.body, re.IGNORECASE):
                     if submission.id not in posts_replied_to:
-
-                        currentComment.reply(
-                            currentComment.author, ", I am your father.")
+                        fatherReply = str(currentComment.author) + ", I am your father."
+                        currentComment.reply( fatherReply
+                            )
 
                         posts_replied_to.append(submission.id)
                         fatherReplies = fatherReplies + 1
