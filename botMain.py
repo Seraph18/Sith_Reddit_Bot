@@ -96,7 +96,7 @@ for subredditToSearch in subredditToSearchList:
                         print(e)
 
                         # Handle too many comments
-                        if(errorMessage.contains("You're doing that too much. Try again in")):
+                        if(re.search("You're doing that too much. Try again in", errorMessage, re.IGNORECASE)):
                             currentWord = ""
                             minutesToWait = minutesToWait = int(
                                 re.search(r'\d+', str).group())
