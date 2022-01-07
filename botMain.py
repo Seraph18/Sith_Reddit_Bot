@@ -6,6 +6,9 @@ import os
 import sys
 import time
 
+from prawcore.exceptions import Forbidden
+
+
 from configparser import ConfigParser
 
 config = ConfigParser()
@@ -14,9 +17,12 @@ config.read('password.ini')
 botPass = config.get('s1', 'pass')
 devPass = config.get('s1', 'devPass')
 
-numberOfTopPostsToCheck = 100
+totalAbsoluteReplies = 0
+totalFatherReplies = 0
+
+numberOfTopPostsToCheck = 1000
 phrasesToRecognize = {"absolute", "absolutes", "absolutely", "absolution"}
-subredditToSearchList = {'all', 'StarWars', 'starwarsmemes', 'SequelMemes', 'StarWarsBattlefront',
+subredditToSearchList = {'FortNiteBR', 'starwarsmemes', 'SequelMemes', 'StarWarsBattlefront',
                          'BookofBobaFett', 'TheMandalorianTV', 'TheBadBatch', 'StarWarsKenobi',
                          'StarWarsLando', 'lego', 'AbsoluteUnits', 'PrequelMemes', 'StarWarsMagic',
                          'BinghamtonUniversity', 'whowouldwin', 'Cornell', 'funkopop', 'CrappyDesign'}
@@ -31,10 +37,14 @@ reddit = praw.Reddit(
 
 print("Current bot = ", reddit.user.me())
 
+subredditsSearched = 0
+
 for subredditToSearch in subredditToSearchList:
 
-    print("Searching Subreddit: ", subredditToSearch)
+    print("Searching Subreddit: ", subredditToSearch,
+          " (", subredditsSearched, "/", len(subredditToSearchList), ")")
     subreddit = reddit.subreddit(subredditToSearch)
+    subredditsSearched = subredditsSearched + 1
 
     # Create a list
     if not os.path.isfile("posts_replied_to.txt"):
@@ -92,14 +102,15 @@ for subredditToSearch in subredditToSearchList:
     # Handle errors for Absolute response
 
                     except Exception as e:
-                        errorMessage = e
                         print(e)
+                        errorMessage = str(e)
+                        # print(errorMessage)
 
-                        # Handle too many comments
-                        if(re.search("You're doing that too much. Try again in", errorMessage, re.IGNORECASE)):
-                            currentWord = ""
+                        errorMatchObj = errorMessage.find(
+                            "Looks like you've been doing that a lot.")
+                        if(errorMatchObj != -1):
                             minutesToWait = minutesToWait = int(
-                                re.search(r'\d+', str).group())
+                                re.search(r'\d+', errorMessage).group())
                             secondsToWait = minutesToWait * 60
                             print("Sleeping for ", minutesToWait,
                                   " minutes, aka ", secondsToWait, " seconds.")
@@ -115,22 +126,24 @@ for subredditToSearch in subredditToSearchList:
 
                             posts_replied_to.append(submission.id)
                             fatherReplies = fatherReplies + 1
-                            break
 
     # Handle error for father response
 
                 except Exception as e:
-                    errorMessage = e
-                    print(errorMessage)
+                    print(e)
+                    errorMessage = str(e)
+                   # print(errorMessage)
 
-                    if(re.search("You're doing that too much. Try again in", errorMessage, re.IGNORECASE)):
-                        currentWord = ""
+                    errorMatchObj = errorMessage.find(
+                        "Looks like you've been doing that a lot.")
+                    if(errorMatchObj != -1):
                         minutesToWait = minutesToWait = int(
-                            re.search(r'\d+', str).group())
+                            re.search(r'\d+', errorMessage).group())
                         secondsToWait = minutesToWait * 60
                         print("Sleeping for ", minutesToWait,
                               " minutes, aka ", secondsToWait, " seconds.")
                         time.sleep(secondsToWait)
+                    break
 
     # Write updated list to file
     with open("posts_replied_to.txt", "w") as f:
@@ -139,3 +152,9 @@ for subredditToSearch in subredditToSearchList:
 
     print("Absolute Sith Comments: ", absoluteReplies)
     print("Father Comments: ", fatherReplies)
+
+    totalAbsoluteReplies += absoluteReplies
+    totalFatherReplies += fatherReplies
+
+print("Total Absolute Sith Comments: ", totalAbsoluteReplies)
+print("Total Father Comments: ", totalFatherReplies)
