@@ -14,9 +14,12 @@ config.read('password.ini')
 botPass = config.get('s1', 'pass')
 devPass = config.get('s1', 'devPass')
 
-numberOfTopPostsToCheck = 200
+numberOfTopPostsToCheck = 100
 phrasesToRecognize = {"absolute", "absolutes", "absolutely", "absolution"}
-subredditToSearchList = {'all', 'StarWars', 'AbsoluteUnits', 'PrequelMemes'}
+subredditToSearchList = {'all', 'StarWars', 'starwarsmemes', 'SequelMemes', 'StarWarsBattlefront',
+                         'BookofBobaFett', 'TheMandalorianTV', 'TheBadBatch', 'StarWarsKenobi',
+                         'StarWarsLando', 'lego', 'AbsoluteUnits', 'PrequelMemes', 'StarWarsMagic',
+                         'BinghamtonUniversity', 'whowouldwin', 'Cornell', 'funkopop', 'CrappyDesign'}
 
 reddit = praw.Reddit(
     client_id="tRclfC6esR4Mz3-5B4Axjg",
@@ -30,6 +33,7 @@ print("Current bot = ", reddit.user.me())
 
 for subredditToSearch in subredditToSearchList:
 
+    print("Searching Subreddit: ", subredditToSearch)
     subreddit = reddit.subreddit(subredditToSearch)
 
     # Create a list
@@ -119,7 +123,7 @@ for subredditToSearch in subredditToSearchList:
                     errorMessage = e
                     print(errorMessage)
 
-                    if(errorMessage.contains("You're doing that too much. Try again in")):
+                    if(re.search("You're doing that too much. Try again in", errorMessage, re.IGNORECASE)):
                         currentWord = ""
                         minutesToWait = minutesToWait = int(
                             re.search(r'\d+', str).group())
