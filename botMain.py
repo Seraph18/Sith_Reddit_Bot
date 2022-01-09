@@ -20,12 +20,24 @@ devPass = config.get('s1', 'devPass')
 totalAbsoluteReplies = 0
 totalFatherReplies = 0
 
-numberOfTopPostsToCheck = 1000
+numberOfTopPostsToCheck = input("Enter amount of posts to check per subreddit.\n")
+
+while(type(numberOfTopPostsToCheck) != int):
+    print("Invalid input, please enter a valid whole number.\n")
+    numberOfTopPostsToCheck = input("Enter amount of posts to check per subreddit.")
+
+
 phrasesToRecognize = {"absolute", "absolutes", "absolutely", "absolution"}
+#subredditToSearchList = {'rant', 'teenagers', 'childfree', 'starbucks', 'keto', 'SciFiScroll',
+ #                        'tipofmytongue', 'movies', 'sciencefiction', 'books', 'WritingPrompts',
+  #                       'television', 'NetflixBestOf'}
+
+
 subredditToSearchList = {'FortNiteBR', 'starwarsmemes', 'SequelMemes', 'StarWarsBattlefront',
-                         'BookofBobaFett', 'TheMandalorianTV', 'TheBadBatch', 'StarWarsKenobi',
-                         'StarWarsLando', 'lego', 'AbsoluteUnits', 'PrequelMemes', 'StarWarsMagic',
-                         'BinghamtonUniversity', 'whowouldwin', 'Cornell', 'funkopop', 'CrappyDesign'}
+       'BookofBobaFett', 'TheMandalorianTV', 'TheBadBatch', 'StarWarsKenobi',
+        'StarWarsLando', 'lego', 'AbsoluteUnits', 'PrequelMemes', 'StarWarsMagic',
+        'BinghamtonUniversity', 'whowouldwin', 'Cornell', 'funkopop', 'CrappyDesign',
+        'NatureIsFuckingLit', 'WhatsWrongWithYourDog', 'all'}
 
 reddit = praw.Reddit(
     client_id="tRclfC6esR4Mz3-5B4Axjg",
@@ -68,7 +80,7 @@ for subredditToSearch in subredditToSearchList:
 
         numberPost = numberPost + 1
         print("Checked ", numberPost)
-        #print("Post Name: ", submission.title)
+        # print("Post Name: ", submission.title)
 
         if submission.id not in posts_replied_to:
             # Search through comments for keywords
@@ -109,12 +121,31 @@ for subredditToSearch in subredditToSearchList:
                         errorMatchObj = errorMessage.find(
                             "Looks like you've been doing that a lot.")
                         if(errorMatchObj != -1):
-                            minutesToWait = minutesToWait = int(
-                                re.search(r'\d+', errorMessage).group())
-                            secondsToWait = minutesToWait * 60
-                            print("Sleeping for ", minutesToWait,
-                                  " minutes, aka ", secondsToWait, " seconds.")
-                            time.sleep(secondsToWait)
+                            if(errorMessage.find("minutes") != -1):
+
+                                minutesToWait = int(
+                                    re.search(r'\d+', errorMessage).group())
+                                secondsToWait = minutesToWait * 60
+                                print("Sleeping for ", minutesToWait,
+                                      " minutes, aka ", secondsToWait, " seconds.\n\n")
+
+                                numberOfFiveMinuteIntervals = int(
+                                    minutesToWait/5)
+                                leftOverMinutes = minutesToWait % 5
+                                for intervalNum in range(numberOfFiveMinuteIntervals):
+                                    print(((numberOfFiveMinuteIntervals-intervalNum)
+                                           * 5) + leftOverMinutes, " minutes remaining.\n")
+                                    # Number of seconds in 5 minutes
+                                    time.sleep(300)
+                                # Wait the additional leftover minutes
+                                print(leftOverMinutes, " minutes remaining.")
+                                time.sleep(leftOverMinutes * 60)
+                            else:
+                                secondsToWait = int(
+                                    re.search(r'\d+', errorMessage).group())
+                                print("Sleeping for ",
+                                      secondsToWait, " seconds.")
+                                time.sleep(secondsToWait)
 
                 try:
                     if re.search("father", currentComment.body, re.IGNORECASE):
@@ -137,12 +168,30 @@ for subredditToSearch in subredditToSearchList:
                     errorMatchObj = errorMessage.find(
                         "Looks like you've been doing that a lot.")
                     if(errorMatchObj != -1):
-                        minutesToWait = minutesToWait = int(
-                            re.search(r'\d+', errorMessage).group())
-                        secondsToWait = minutesToWait * 60
-                        print("Sleeping for ", minutesToWait,
-                              " minutes, aka ", secondsToWait, " seconds.")
-                        time.sleep(secondsToWait)
+                        if(errorMessage.find("minutes") != -1):
+
+                            minutesToWait = int(
+                                re.search(r'\d+', errorMessage).group())
+                            secondsToWait = minutesToWait * 60
+                            print("Sleeping for ", minutesToWait,
+                                  " minutes, aka ", secondsToWait, " seconds.\n\n")
+                            numberOfFiveMinuteIntervals = int(
+                                minutesToWait/5)
+                            leftOverMinutes = minutesToWait % 5
+                            for intervalNum in range(numberOfFiveMinuteIntervals):
+                                print(((numberOfFiveMinuteIntervals-intervalNum)
+                                       * 5) + leftOverMinutes, " minutes remaining.\n")
+                                # Number of seconds in 5 minutes
+                                time.sleep(300)
+                                # Wait the additional leftover minutes
+                                print(leftOverMinutes, " minutes remaining.")
+                                time.sleep(leftOverMinutes * 60)
+                        else:
+                            secondsToWait = int(
+                                re.search(r'\d+', errorMessage).group())
+                            print("Sleeping for ",
+                                  secondsToWait, " seconds.")
+                            time.sleep(secondsToWait)
                     break
 
     # Write updated list to file
